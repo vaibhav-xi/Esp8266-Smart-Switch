@@ -14,9 +14,9 @@ ESP8266WebServer server(80);
 const int relayPin = D3;  // Change this to the pin you want to control
 
 // Pins connected to RGB LED (common cathode)
-const int redPin = D4;
-const int greenPin = D5;
-const int bluePin = D6;
+const int redPin = D5;
+const int greenPin = D6;
+const int bluePin = D7;
 
 void setup() {
   // Initialize Serial Monitor
@@ -51,10 +51,12 @@ void setup() {
 
   // Route for root / web page
   server.on("/", HTTP_GET, []() {
-    // HTML for the web page with on/off button
-    String html = "<!DOCTYPE html><html><head><title>ESP8266 Web Server</title></head><body><h1>Switch Control</h1><p>Click to toggle Switch:</p>";
-    html += "<form action='/toggle' method='post'><button type='submit'>Toggle Switch</button></form>";
-    html += "</body></html>";
+    // HTML for the web page with on/off button and relay state
+    String html = "<!DOCTYPE html><html><head><title>ESP8266 Web Server</title></head><body><h1>Light Control</h1><p>Click to toggle:</p>";
+    html += "<form action='/toggle' method='post'><button type='submit'>Bed Room Lights</button></form>";
+    html += "<p>Current Light State: ";
+    html += (digitalRead(relayPin) == HIGH) ? "ON" : "OFF";
+    html += "</p></body></html>";
 
     server.send(200, "text/html", html);
   });
@@ -85,25 +87,25 @@ void setup() {
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
     Serial.printf("OTA Progress: %u%%\r", (progress / (total / 100)));
     // Blink blue LED to indicate OTA update progress
-    setColor(0, 0, 255); // Blue
+    setColor(0, 255, 0); // Blue
   });
   ArduinoOTA.onError([](ota_error_t error) {
     Serial.printf("OTA Error[%u]: ", error);
     if (error == OTA_AUTH_ERROR) {
       Serial.println("Auth Failed");
-      setColor(255, 0, 255); // Magenta
+      setColor(255, 0, 255); // Purple
     } else if (error == OTA_BEGIN_ERROR) {
       Serial.println("Begin Failed");
       setColor(255, 255, 0); // Yellow
     } else if (error == OTA_CONNECT_ERROR) {
       Serial.println("Connect Failed");
-      setColor(255, 165, 0); // Orange
+      setColor(0, 255, 255); // Cyan
     } else if (error == OTA_RECEIVE_ERROR) {
       Serial.println("Receive Failed");
-      setColor(255, 140, 0); // Dark Orange
+      setColor(255, 70, 5); // Orange
     } else if (error == OTA_END_ERROR) {
       Serial.println("End Failed");
-      setColor(255, 69, 0); // Red-Orange
+      setColor(255, 0, 255); // Pink
     }
   });
 
